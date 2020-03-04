@@ -1,1 +1,3 @@
 # Defaults variables for role sync2git
+GIT_URL: git.dev.centos.org
+ALTSRC_STAGE_DIR: /tmp/stage
