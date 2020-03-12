@@ -1,65 +1,73 @@
 # https://github.com/siteshwar/centos-sync-packages/blob/d24dfb53ce26ac3415d57961664f86484a17735b/setup.sh
-- name: "Install krb5-devel python3-devel python3-pip gcc and python-devel packages"
+# Install package dependencies:
+# - `git` is required to clone packages
+# - `libcurl` is required to clone through `https` urls
+# - Other packages are dependencies for pip modules
+- name: "Install krb5-devel python3-devel, python3-pip, gcc, git and libcurl packages"
   yum:
-    name: krb5-devel, python3-devel, python3-pip, gcc, python-devel
+    name: krb5-devel, python3-devel, python3-pip, gcc, git, libcurl
     state: latest
 
+# These modules are required by script `centos-sync-packages` in git repo
 - name: "Install koji and gitpython pip modules"
   pip:
     name: koji, gitpython
+    executable: /usr/bin/pip3
 
 - name: "Install Red Hat certificate"
   yum:
     name: http://hdn.corp.redhat.com/rhel7-csb-stage/RPMS/noarch/redhat-internal-cert-install-0.1-15.el7.csb.noarch.rpm
     state: present
 
-# TODO: Is there a better way to do this in ansible ?"
-# - name: "Add yum repository"
-#  shell: "yum-config-manager --add-repo http://download-ipv4.eng.brq.redhat.com/rel-eng/RCMTOOLS/rcm-tools-rhel-7-workstation.repo"
-
 - name: "Setup rcm-tools-rhel-7-workstation.repo"
   template:
       src: "rcm-tools-rhel-7-workstation.repo.j2"
       dest: "/etc/yum.repos.d/rcm-tools-rhel-7-workstation.repo"
 
+# `brew` command is used to download source package
 - name: "Install rhpkg"
   yum:
     name: rhpkg
     state: latest
 
-# We are mixing python2 and python3. How to handle this with ansible `pip` module ?
-- name: "Install epel-release and python-pip"
-  yum:
-    name: epel-release, python-pip
-    state: latest
+- name: "Setup alt-src.repo"
+  template:
+      src: "alt-src.repo.j2"
+      dest: "/etc/yum.repos.d/alt-src.repo"
 
-- name: "Install rpm-py-installer"
-  shell: "pip install --user rpm-py-installer"
-  become_user: centos
-
+# `alt-src` script is used to upload sources to CentOS Git repository
 - name: "Install alt-src"
-  shell: "pip install --user alt-src"
-  become_user: centos
+  yum:
+    name: "python-alt-src"
+    state: present
 
-# Shall we use some other path than `/tmp/stage` for `alt-src` script ?
+# TODO: Shall we use some other path than `/tmp/stage` for `alt-src` script ?
 - name: "Set up {{ ALTSRC_STAGE_DIR }}"
   file:
       name: "{{ ALTSRC_STAGE_DIR }}"
       state: directory
       owner: centos
 
-# Terrible workaround to fix dependency issues for `alt-src`
-# https://projects.engineering.redhat.com/browse/DELIVERY-8907
-- name: "Uninstall rpm pip"
-  shell: "pip uninstall -y rpm || :"
-  become_user: centos
-
-- name: "Install rpm pip"
-  shell: "pip install rpm"
-
+# This template contains references to CentOS git repository and configurations for `alt-src` script
 - name: "Copy /etc/altsrc.conf"
   template:
       src: "altsrc.conf.j2"
       dest: "/etc/altsrc.conf"
 
-# TODO: How to put ssh key to authenticated with centos git server
+- name: "Set up {{ CENTOS_SYNC_PACKAGES_GITDIR }} directory"
+  file:
+      name: "{{ CENTOS_SYNC_PACKAGES_GITDIR }}"
+      state: directory
+      owner: centos
+
+- name: "Set up centos-sync-packages repository"
+  git:
+    repo: https://github.com/siteshwar/centos-sync-packages.git
+    dest: "{{ CENTOS_SYNC_PACKAGES_GITDIR }}"
+
+# TODO: How to put ssh key to authenticate with centos git server ?
+# TODO: Shall we write a systemd service to automatically start the script when it's deployed ?
+
+- name: "Message"
+  debug:
+      msg: "Now manually set up ssh keys under `~/.ssh` and run `python3 sync.py` from '{{ CENTOS_SYNC_PACKAGES_GITDIR }}' directory"
