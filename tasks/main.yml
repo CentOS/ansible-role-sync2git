@@ -70,7 +70,41 @@
     dest: "{{ CENTOS_SYNC_PACKAGES_GITDIR }}"
   ignore_errors: "{{ ansible_check_mode }}"
 
-# TODO: How to put ssh key to authenticate with centos git server ?
+- name: "Make the SSH private key directory"
+  file:
+    name: "/home/centos/.ssh"
+    mode: 0700
+    owner: centos
+    state: directory
+
+- name: "Set the SSH private key"
+  copy:
+    dest: "/home/centos/.ssh/id_rsa"
+    src: "{{ sync2git_altsrc_ssh_private_key }}"
+    mode: 0600
+    owner: centos
+
+- name: "Set the pagure api key"
+  copy:
+    content: "{{ sync2git_altsrc_pagure_apikey }}"
+    dest: "/etc/altsrc-pagure.key"
+    mode: 0600
+    owner: centos
+
+- name: "Set a proper email address in gitconfig for the altsrc user"
+  become: centos
+  git_config:
+    name: user.email
+    scope: global
+    value: "bugs@centos.org"
+
+- name: "Set a proper name gitconfig for the altsrc user"
+  become: centos
+  git_config:
+    name: user.name
+    scope: global
+    value: "CentOS Sources"
+
 # TODO: Shall we write a systemd service to automatically start the script when it's deployed ?
 
 - name: "Message"
