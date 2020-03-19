@@ -64,6 +64,7 @@
       owner: centos
 
 - name: "Set up centos-sync-packages repository"
+  become: centos
   git:
     repo: https://github.com/siteshwar/centos-sync-packages.git
     dest: "{{ CENTOS_SYNC_PACKAGES_GITDIR }}"
