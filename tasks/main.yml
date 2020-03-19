@@ -13,6 +13,7 @@
   pip:
     name: koji, gitpython
     executable: /usr/bin/pip3
+  when: not ansible_check_mode
 
 - name: "Install Red Hat certificate"
   yum:
@@ -29,6 +30,7 @@
   yum:
     name: rhpkg
     state: latest
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: "Setup alt-src.repo"
   template:
@@ -40,6 +42,7 @@
   yum:
     name: "python-alt-src"
     state: present
+  ignore_errors: "{{ ansible_check_mode }}"
 
 # TODO: Shall we use some other path than `/tmp/stage` for `alt-src` script ?
 - name: "Set up {{ ALTSRC_STAGE_DIR }}"
