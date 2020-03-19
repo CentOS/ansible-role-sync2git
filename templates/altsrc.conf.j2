@@ -1,7 +1,7 @@
 [altsrc]
 #pagure api
-# pagure_api_key_file = ./config/pagure_test/pagure.key
 # pagure_repo_init_api = https://git.dev.centos.org/api/0/new
+pagure_api_key_file = /etc/altsrc-pagure.key
 pagure_repo_init_api = https://{{ GIT_URL }}/api/0/new
 
 #directories
@@ -13,7 +13,7 @@ lookaside = /tmp/lookaside
 #push location
 git_push_url_module = git@{{ GIT_URL }}:/modules/%(package)s.git
 git_push_url = git@{{ GIT_URL }}:/rpms/%(package)s.git
-lookaside_rsync_dest = centosrcm@{{ GIT_URL }}:/srv/cache/lookaside/
+lookaside_rsync_dest = git@{{ GIT_URL }}:/srv/cache/lookaside/
 
  
 log_level = INFO
@@ -25,8 +25,8 @@ blacklist =
         Red_Hat_Enterprise_Linux-Release_Notes*
  
 #smtp options
-smtp_enabled = no
+smtp_enabled = yes
 smtp_host=smtp.corp.redhat.com
-# smtp_to=mikem@redhat.com
-# smtp_log_to=mikem+alert@redhat.com
-# smtp_from = Alt Source <altsrc@redhat.com>
+smtp_to=bstinson@redhat.com
+smtp_log_to=bstinson@redhat.com
+smtp_from = CentOS Stream Alt Source <altsrc@redhat.com>
