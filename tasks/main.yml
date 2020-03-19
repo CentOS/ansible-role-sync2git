@@ -68,6 +68,7 @@
   git:
     repo: https://github.com/siteshwar/centos-sync-packages.git
     dest: "{{ CENTOS_SYNC_PACKAGES_GITDIR }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 # TODO: How to put ssh key to authenticate with centos git server ?
 # TODO: Shall we write a systemd service to automatically start the script when it's deployed ?
