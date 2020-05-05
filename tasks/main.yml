@@ -105,6 +105,25 @@
     scope: global
     value: "CentOS Sources"
 
+- name: "Create directories for volumes that are necessary to gather information from brew"
+  file:
+    name: "{{ item.brew_path }}"
+    state: directory
+  with_items: "{{ brew_mounts }}"
+  tags:
+    - mounts
+
+- name: "Mount directories for volumes that are necessary to gather information from brew"
+  mount:
+    path: "{{ item.brew_path }}"
+    fstype: 'nfs'
+    opts: "{{ item.opts }}"
+    src: "{{ item.source }}"
+    state: 'mounted'
+  with_items: "{{ brew_mounts }}"
+  tags:
+    - mounts
+
 # TODO: Shall we write a systemd service to automatically start the script when it's deployed ?
 
 - name: "Message"
