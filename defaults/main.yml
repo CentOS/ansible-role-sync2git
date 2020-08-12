@@ -1,4 +1,4 @@
 # Defaults variables for role sync2git
 GIT_URL: git.dev.centos.org
 ALTSRC_STAGE_DIR: /tmp/stage
-CENTOS_SYNC_PACKAGES_GITDIR: /home/centos/centos-sync-packages
+CENTOS_SYNC2GIT_DIR: /home/centos/sync2git
