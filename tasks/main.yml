@@ -1,4 +1,3 @@
-# https://github.com/siteshwar/centos-sync-packages/blob/d24dfb53ce26ac3415d57961664f86484a17735b/setup.sh
 # Install package dependencies:
 # - `git` is required to clone packages
 # - `libcurl` is required to clone through `https` urls
@@ -8,7 +7,7 @@
     name: krb5-devel, python3-devel, python3-pip, gcc, git, libcurl
     state: latest
 
-# These modules are required by script `centos-sync-packages` in git repo
+# These modules are required by `sync2git` script
 - name: "Install koji and gitpython pip modules"
   pip:
     name: koji, gitpython
@@ -57,17 +56,17 @@
       src: "altsrc.conf.j2"
       dest: "/etc/altsrc.conf"
 
-- name: "Set up {{ CENTOS_SYNC_PACKAGES_GITDIR }} directory"
+- name: "Set up {{ CENTOS_SYNC2GIT_DIR }} directory"
   file:
-      name: "{{ CENTOS_SYNC_PACKAGES_GITDIR }}"
+      name: "{{ CENTOS_SYNC2GIT_DIR }}"
       state: directory
       owner: centos
 
-- name: "Set up centos-sync-packages repository"
+- name: "Set up sync2git repository"
   become: centos
   git:
-    repo: https://github.com/siteshwar/centos-sync-packages.git
-    dest: "{{ CENTOS_SYNC_PACKAGES_GITDIR }}"
+    repo: https://github.com/CentOS/sync2git
+    dest: "{{ CENTOS_SYNC2GIT_DIR }}"
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: "Make the SSH private key directory"
@@ -128,4 +127,4 @@
 
 - name: "Message"
   debug:
-      msg: "Now manually set up ssh keys under `~/.ssh` and run `python3 sync.py` from '{{ CENTOS_SYNC_PACKAGES_GITDIR }}' directory"
+      msg: "Now manually set up ssh keys under `~/.ssh` and run `python3 sync.py` from '{{ CENTOS_SYNC2GIT_DIR }}' directory"
